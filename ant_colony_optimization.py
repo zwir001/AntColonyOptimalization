@@ -30,14 +30,18 @@ class Graph:
     def pick_next_node(self, current: int, not_visited: list):
         p = list()
         for node in not_visited:
-            p.append((self.pheromone_intensity[current, node] ** self.alpha) / self.matrix[current][node] ** self.beta)
+            p.append((self.pheromone_intensity[current][node] ** self.alpha) / (self.matrix[current][node] ** self.beta))
 
-        return random.choices(not_visited, weights= p)
+        return random.choices(not_visited, weights=p)
 
-    def revalidate_optimal(self, path: list):
+    def revalidate_optimal(self, path: list) -> bool:
         path_value = self._evaluate_path(path)
+
         if self.optimal_value > path_value:
             self.optimal_value = path_value
+        elif self.optimal_value == path_value:
+            return False
+        return True
 
     def _evaluate_path(self, path: list) -> int:
         path_value = 0
@@ -52,17 +56,20 @@ class Graph:
 class AntColony:
     def __init__(self, n: int):
         self.n = n
-        self.paths = np.full(n, list())
-        self.not_visited = np.full(n, list(range(n)))
+        self.paths = np.empty(n, dtype=list)
+        self.not_visited = np.empty(n, dtype=list)
 
         for i in range(n):
-            self.paths[i].append(i)
-            self.not_visited[i].remove(i)
+            if self.paths[i] is not None:
+                self.paths[i].append(i)
+            else:
+                self.paths[i] = list([i])
+            self.not_visited[i] = list([j for j in range(n) if j != i])
 
     def move_all(self, graph: Graph) -> list[tuple]:
-        moves = list(tuple)
+        moves = list()
         for ant_no in range(self.n):
-            next_node = graph.pick_next_node(self.paths[ant_no], self.not_visited[ant_no])
+            next_node = graph.pick_next_node(self.paths[ant_no][-1], self.not_visited[ant_no])[0]
 
             self.paths[ant_no].append(next_node)
             self.not_visited[ant_no].remove(next_node)
@@ -71,9 +78,16 @@ class AntColony:
         return moves
 
     def check_population_paths(self, graph):
+        unipath_counter = 0
         for path in self.paths:
             path.append(path[0])
-            graph.revalidate_optimal(path)
+            if not graph.revalidate_optimal(path):
+                unipath_counter += 1
+
+        if unipath_counter > graph.n * 0.4:
+            return False
+        print(unipath_counter)
+        return True
 
 
 def aco(array: np.ndarray, alpha: float, beta: float, rho: float, q: float, cycles_to_stop: int) -> int:
@@ -81,11 +95,12 @@ def aco(array: np.ndarray, alpha: float, beta: float, rho: float, q: float, cycl
     graph = Graph(array, alpha, beta, rho, q)
     for cycle_no in range(cycles_to_stop):
         ant_generation = AntColony(array.shape[0])
-        for i in range(n):
+        for i in range(n - 1):
             new_pheromones = ant_generation.move_all(graph)
             graph.update_pheromones(new_pheromones)
 
-        ant_generation.check_population_paths(graph)
+        if not ant_generation.check_population_paths(graph):
+            break
 
     return graph.optimal_value
 

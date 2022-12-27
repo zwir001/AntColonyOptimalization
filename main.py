@@ -25,22 +25,21 @@ if __name__ == '__main__':
 
             print(line[0])
 
-            distances_matrix = h.read_instance_format_tsp(line[0])
+            if int(line[1]) != 0:
+                distances_matrix = h.read_instance_format_tsp(line[0])
+                instance_size = distances_matrix.shape[0]
 
-            instance_size = distances_matrix.shape[0]
-
-            for repeat in range(int(line[1])):
-                start = perf_counter()  # rozpocznij pomiar czasu
-                result = aco(distances_matrix, alpha, beta, rho, 100, 50)
-                end = perf_counter()  # zakończ pomiar czasu
-
-                mem_usage = memory_usage(aco, (distances_matrix, alpha, beta, rho, 100, 50))
-                results_csv.append(
-                    [
-                        format_scientific(end - start, locale="pl"),
-                        format_scientific(max(mem_usage), locale="pl"),
-                        format_scientific(result, locale="pl")
-                    ]
-                )
+                for repeat in range(int(line[1])):
+                    start = perf_counter()  # rozpocznij pomiar czasu
+                    result = aco(distances_matrix, alpha, beta, rho, 100, 5)
+                    end = perf_counter()  # zakończ pomiar czasu
+                    mem_usage = memory_usage((aco, (distances_matrix, alpha, beta, rho, 1000, 5)))
+                    results_csv.append(
+                        [
+                            format_scientific(end - start, locale="pl"),
+                            format_scientific(max(mem_usage), locale="pl"),
+                            format_scientific(result, locale="pl")
+                        ]
+                    )
         else:
             h.write_to_csv(line[0], results_csv)
