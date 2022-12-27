@@ -5,6 +5,7 @@ from time import perf_counter
 
 from babel.numbers import format_scientific
 from memory_profiler import memory_usage
+from ant_colony_optimization import aco
 
 import helpers as h
 
@@ -30,10 +31,10 @@ if __name__ == '__main__':
 
             for repeat in range(int(line[1])):
                 start = perf_counter()  # rozpocznij pomiar czasu
-                result = 0
+                result = aco(distances_matrix, alpha, beta, rho, 100, 50)
                 end = perf_counter()  # zakończ pomiar czasu
 
-                mem_usage = memory_usage()
+                mem_usage = memory_usage(aco, (distances_matrix, alpha, beta, rho, 100, 50))
                 results_csv.append(
                     [
                         format_scientific(end - start, locale="pl"),
