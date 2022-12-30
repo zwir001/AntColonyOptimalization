@@ -94,7 +94,7 @@ def aco(array: np.ndarray, alpha: float, beta: float, rho: float, q: float, ants
     n = array.shape[0]
     cycles = numpy.ceil(ants_to_stop / n)
     graph = Graph(array, alpha, beta, rho, q)
-    for cycle_no in range(cycles):
+    for cycle_no in range(int(cycles)):
         ant_generation = AntColony(n)
         for i in range(n - 1):
             new_pheromones = ant_generation.move_all(graph)
