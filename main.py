@@ -32,7 +32,7 @@ if __name__ == '__main__':
                 for repeat in range(int(line[1])):
                     print(repeat)
                     start = perf_counter()  # rozpocznij pomiar czasu
-                    result = aco(distances_matrix, alpha, beta, rho, 10, 300)
+                    result = aco(distances_matrix, alpha, beta, rho, 10, 1000)
                     end = perf_counter()  # zakończ pomiar czasu
                     mem_usage = memory_usage((aco, (distances_matrix, alpha, beta, rho, 100, 5)))
                     results_csv.append(

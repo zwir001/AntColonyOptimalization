@@ -24,7 +24,7 @@ class Graph:
             self.pheromone_intensity[pair[0]][pair[1]] += self.q * self.matrix[pair[0]][pair[1]]
 
     def _evaporate_pheromones(self):
-        self.pheromone_intensity = np.multiply(self.pheromone_intensity, 0.5)
+        self.pheromone_intensity = np.multiply(self.pheromone_intensity, self.rho)
 
     def get_edge_info(self, current: int, new: int) -> tuple[int, float]:
         return self.matrix[current][new], self.pheromone_intensity[current][new]
@@ -32,7 +32,10 @@ class Graph:
     def pick_next_node(self, current: int, not_visited: list):
         p = list()
         for node in not_visited:
-            p.append((self.pheromone_intensity[current][node] ** self.alpha) / (self.matrix[current][node] ** self.beta))
+            edge_weight = 0.1
+            if self.matrix[current][node] != 0:
+                edge_weight = self.matrix[current][node]
+            p.append((max(self.pheromone_intensity[current][node], 1e-5) ** self.alpha) / (edge_weight ** self.beta))
 
         return random.choices(not_visited, weights=p)
 
