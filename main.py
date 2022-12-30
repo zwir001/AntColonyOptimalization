@@ -30,10 +30,11 @@ if __name__ == '__main__':
                 instance_size = distances_matrix.shape[0]
 
                 for repeat in range(int(line[1])):
+                    print(repeat)
                     start = perf_counter()  # rozpocznij pomiar czasu
-                    result = aco(distances_matrix, alpha, beta, rho, 100, 5)
+                    result = aco(distances_matrix, alpha, beta, rho, 10, 300)
                     end = perf_counter()  # zakończ pomiar czasu
-                    mem_usage = memory_usage((aco, (distances_matrix, alpha, beta, rho, 1000, 5)))
+                    mem_usage = memory_usage((aco, (distances_matrix, alpha, beta, rho, 100, 5)))
                     results_csv.append(
                         [
                             format_scientific(end - start, locale="pl"),

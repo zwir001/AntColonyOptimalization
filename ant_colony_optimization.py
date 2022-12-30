@@ -1,5 +1,7 @@
 import random
 import sys
+
+import numpy
 import numpy as np
 
 
@@ -13,13 +15,13 @@ class Graph:
         self.rho = rho
         self.q = q
         self.n = matrix.shape[0]
-        self.optimal_value = nearest_neighbour(matrix)
-        self.pheromone_intensity = np.full((self.n, self.n), self.n / self.optimal_value)
+        self.optimal_value = sys.maxsize
+        self.pheromone_intensity = np.full((self.n, self.n), self.n / nearest_neighbour(self.matrix))
 
     def update_pheromones(self, new_pheromones: list[tuple]):
         self._evaporate_pheromones()
         for pair in new_pheromones:
-            self.pheromone_intensity[pair[0]][pair[1]] += self.q
+            self.pheromone_intensity[pair[0]][pair[1]] += self.q * self.matrix[pair[0]][pair[1]]
 
     def _evaporate_pheromones(self):
         self.pheromone_intensity = np.multiply(self.pheromone_intensity, 0.5)
@@ -40,8 +42,8 @@ class Graph:
         if self.optimal_value > path_value:
             self.optimal_value = path_value
         elif self.optimal_value == path_value:
-            return False
-        return True
+            return True
+        return False
 
     def _evaluate_path(self, path: list) -> int:
         path_value = 0
@@ -71,9 +73,10 @@ class AntColony:
         for ant_no in range(self.n):
             next_node = graph.pick_next_node(self.paths[ant_no][-1], self.not_visited[ant_no])[0]
 
+            moves.append(tuple([self.paths[ant_no][-1], next_node]))
+
             self.paths[ant_no].append(next_node)
             self.not_visited[ant_no].remove(next_node)
-            moves.append(tuple([self.paths[ant_no][-1], next_node]))
 
         return moves
 
@@ -81,25 +84,23 @@ class AntColony:
         unipath_counter = 0
         for path in self.paths:
             path.append(path[0])
-            if not graph.revalidate_optimal(path):
+            if graph.revalidate_optimal(path):
                 unipath_counter += 1
 
-        if unipath_counter > graph.n * 0.4:
-            return False
-        print(unipath_counter)
-        return True
+        return unipath_counter == graph.n
 
 
-def aco(array: np.ndarray, alpha: float, beta: float, rho: float, q: float, cycles_to_stop: int) -> int:
+def aco(array: np.ndarray, alpha: float, beta: float, rho: float, q: float, ants_to_stop: int) -> int:
     n = array.shape[0]
+    cycles = numpy.ceil(ants_to_stop / n)
     graph = Graph(array, alpha, beta, rho, q)
-    for cycle_no in range(cycles_to_stop):
-        ant_generation = AntColony(array.shape[0])
+    for cycle_no in range(cycles):
+        ant_generation = AntColony(n)
         for i in range(n - 1):
             new_pheromones = ant_generation.move_all(graph)
             graph.update_pheromones(new_pheromones)
 
-        if not ant_generation.check_population_paths(graph):
+        if ant_generation.check_population_paths(graph):
             break
 
     return graph.optimal_value
