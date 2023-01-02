@@ -26,7 +26,10 @@ class Graph:
 
         # zwiększ ilość feromonów na krawędzach przebytych przez mrówki według wzoru algorytmu QAS (Wzór 4)
         for pair in new_pheromones:
-            self.pheromone_intensity[pair[0]][pair[1]] += self.q / self.matrix[pair[0]][pair[1]]
+            edge_weight = 0.1
+            if self.matrix[pair[0]][pair[1]] != 0:
+                edge_weight = self.matrix[pair[0]][pair[1]]
+            self.pheromone_intensity[pair[0]][pair[1]] += self.q / edge_weight
 
     def _evaporate_pheromones(self):
         self.pheromone_intensity = np.multiply(self.pheromone_intensity, self.rho)
