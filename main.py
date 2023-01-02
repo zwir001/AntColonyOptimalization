@@ -40,7 +40,7 @@ if __name__ == '__main__':
                     end = perf_counter()  # zakończ pomiar czasu
 
                     # dokonaj pomiaru pamięci
-                    mem_usage = memory_usage((aco, (distances_matrix, alpha, beta, rho, 100, 5)))
+                    mem_usage = memory_usage((aco, (distances_matrix, alpha, beta, rho, 100, 1000)))
 
                     # zapisz zmierzony czas, maksymalne zużycie pamięci, oraz wynik algorytmu do pliku wynikowego
                     results_csv.append(
