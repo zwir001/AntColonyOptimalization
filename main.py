@@ -1,6 +1,7 @@
 # PEA - projekt, WT 15:15
 # Zadanie 3 - TSP - Algorytm Mrówkowy (ACO)
 # Jakub Wirwis 259128
+import multiprocessing
 from time import perf_counter
 
 from babel.numbers import format_scientific
@@ -9,7 +10,8 @@ from ant_colony_optimization import aco
 
 import helpers as h
 
-if __name__ == '__main__':
+
+def main():
     config = h.read_config()  # odczytaj plik ini
     config.pop(0)  # usuń nagłówek z opisem parametrów w pierwszej linii
 
@@ -52,3 +54,9 @@ if __name__ == '__main__':
                     )
         else:
             h.write_to_csv(line[0], results_csv)  # zapisz plik wynikowy .csv
+
+
+if __name__ == '__main__':
+    multiprocessing.freeze_support()
+
+    main()
